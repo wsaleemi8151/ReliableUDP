@@ -139,11 +139,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FileOperations.cpp" />
     <ClCompile Include="FileTransferEngine.cpp" />
     <ClCompile Include="FlowControlEngine.cpp" />
     <ClCompile Include="ReliableUDP.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FileOperations.h" />
     <ClInclude Include="FileTransferEngine.h" />
     <ClInclude Include="FlowControlEngine.h" />
     <ClInclude Include="Net.h" />
