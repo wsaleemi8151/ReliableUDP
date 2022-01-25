@@ -140,6 +140,15 @@ int main(int argc, char* argv[])
 	if (argc >= 2)
 	{
 		int a, b, c, d;
+		/*
+			Here using command line arguments, 
+			we need to implement a machenism by which 
+			- app mode can be set to server or client
+			- other end ip address
+			- file transfer or receiver flag
+			- if file transfer then source file path
+			- if file receiving then target file path where file will be save once completed
+		*/
 #pragma warning(suppress : 4996)
 		if (sscanf(argv[1], "%d.%d.%d.%d", &a, &b, &c, &d))
 		{
