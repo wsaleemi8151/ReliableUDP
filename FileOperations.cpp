@@ -19,6 +19,8 @@
 #include <tuple>  /*For packing multi data.*/
 
 using std::string;
+std::tuple<std::vector<uint8_t>, string, string> ReadFile(string, int);
+bool WriteFile(string file_name, string, int);
 
 #define BINARY_FILE 0
 #define ASCII_FILE 1
