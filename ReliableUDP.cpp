@@ -245,6 +245,9 @@ int main(int argc, char* argv[])
 				where "|-|" delimiter to separate attribute values of meta info
 			*/
 
+			// Reading header format
+			// sscanf("%s|-|%s|-|%s",ad,aa,aa);
+
 			memset(packet, 0, sizeof(packet));
 			connection.SendPacket(packet, sizeof(packet));
 			sendAccumulator -= 1.0f / sendRate;
