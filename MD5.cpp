@@ -36,6 +36,7 @@ documentation and/or software.
 /* system implementation headers */
 #include <cstdio>
 
+#pragma warning (disable:4996)
 
 // Constants for MD5Transform routine.
 #define S11 7
@@ -54,6 +55,7 @@ documentation and/or software.
 #define S42 10
 #define S43 15
 #define S44 21
+
 
 ///////////////////////////////////////////////
 

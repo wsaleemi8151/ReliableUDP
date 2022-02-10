@@ -143,6 +143,7 @@
     <ClCompile Include="FileOperations.cpp" />
     <ClCompile Include="FileTransferEngine.cpp" />
     <ClCompile Include="FlowControlEngine.cpp" />
+    <ClCompile Include="MD5.cpp" />
     <ClCompile Include="ReliableUDP.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -150,6 +151,7 @@
     <ClInclude Include="FileOperations.h" />
     <ClInclude Include="FileTransferEngine.h" />
     <ClInclude Include="FlowControlEngine.h" />
+    <ClInclude Include="MD5.h" />
     <ClInclude Include="Net.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

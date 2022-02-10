@@ -8,10 +8,19 @@
 */
 
 
-#include "FileIntegrityManager.h"
 
 #include<string.h>
 #include<stdlib.h>
+#include <iostream> //for std::cout
+#include <string.h> //for std::string
+#include <fstream>
+#include "MD5.h"
+#include "FileIntegrityManager.h"
+
+
+using std::cout; using std::endl;
+using namespace std;
+
 #pragma warning (disable:4996)
 
 
@@ -91,6 +100,40 @@ int ExtractHeader(char* fileName, char* contentType, char* contentSize, char* fi
 	return 0;
 }
 
+
+
+
+
+
+string CalculateMd5Hash(string filename)
+{
+	//Start opening your file
+	ofstream oFile;
+	ifstream inBigArrayfile;
+	inBigArrayfile.open(filename, std::ios::binary | std::ios::in);
+
+	//Find length of file
+	inBigArrayfile.seekg(0, std::ios::end);
+	long Length = inBigArrayfile.tellg();
+	inBigArrayfile.seekg(0, std::ios::beg);
+
+	//read in the data from your file
+	char* InFileData = new char[Length];
+	inBigArrayfile.read(InFileData, Length);
+
+	oFile.open("Scc.png", std::ios::binary | std::ios::out);
+	oFile.write(InFileData, Length);
+	oFile.close();
+
+	//Calculate MD5 hash
+	std::string Temp = md5(InFileData, Length);
+	cout << Temp.c_str() << endl;
+
+	//Clean up
+	delete[] InFileData;
+
+	return Temp;
+}
 
 
 
