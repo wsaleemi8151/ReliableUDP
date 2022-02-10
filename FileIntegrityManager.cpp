@@ -24,18 +24,14 @@ using namespace std;
 #pragma warning (disable:4996)
 
 
-int AddHeader(char* fileName, char* contentType, char* contentSize, char* fileDigest, char* data)
+int AddHeader(char* fileName, char* transferStatus, char* data)
 {
 	char temp[5000] = " ";
 	char delimiter = '#';
 
 	strcat(temp, fileName);
 	strncat(temp, &delimiter, 1);
-	strcat(temp, contentType);
-	strncat(temp, &delimiter, 1);
-	strcat(temp, contentSize);
-	strncat(temp, &delimiter, 1);
-	strcat(temp, fileDigest);
+	strcat(temp, transferStatus);
 	strncat(temp, &delimiter, 1);
 	strcat(temp, data);
 
@@ -45,12 +41,10 @@ int AddHeader(char* fileName, char* contentType, char* contentSize, char* fileDi
 	return 0;
 }
 
-int ExtractHeader(char* fileName, char* contentType, char* contentSize, char* fileDigest, char* data)
+int ExtractHeader(char* fileName, char* transferStatus, char* data)
 {
 	strcpy(fileName, "");
-	strcpy(contentType, "");
-	strcpy(contentSize, "");
-	strcpy(fileDigest, "");
+	strcpy(transferStatus, "");
 	strcpy(data, "");
 
 	char temp[5000] = " ";
@@ -63,7 +57,7 @@ int ExtractHeader(char* fileName, char* contentType, char* contentSize, char* fi
 	{
 		c = data[i];
 
-		if (j != 5)
+		if (j != 3)
 		{
 			if (c == delimiter)
 			{
@@ -79,20 +73,13 @@ int ExtractHeader(char* fileName, char* contentType, char* contentSize, char* fi
 		}
 		else if (j == 2)
 		{
-			strncat(contentType, &c, 1);
+			strncat(transferStatus, &c, 1);
 		}
 		else if (j == 3)
 		{
-			strncat(contentSize, &c, 1);
-		}
-		else if (j == 4)
-		{
-			strncat(fileDigest, &c, 1);
-		}
-		else if (j == 5)
-		{
 			strncat(data, &c, 1);
 		}
+	
 
 		i++;
 	}

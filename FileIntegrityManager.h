@@ -12,8 +12,8 @@ using namespace std;
 
 #pragma warning (disable:4996)
 
-int AddHeader(char* fileName, char* contentType, char* contentSize, char* fileDigest, char* data);
-int ExtractHeader(char* fileName, char* contentType, char* contentSize, char* fileDigest, char* data);
+int AddHeader(char* fileName, char* transferStatus, char* data);
+int ExtractHeader(char* fileName, char* transferStatus, char* data);
 string CalculateMd5Hash(string filename);	
 
 #pragma once

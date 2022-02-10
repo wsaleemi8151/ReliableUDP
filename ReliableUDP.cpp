@@ -35,6 +35,8 @@ const float DeltaTime = 1.0f / 30.0f;
 const float SendRate = 1.0f / 30.0f;
 const float TimeOut = 10.0f;
 const int PacketSize = 256;
+const int DataSize = 150;
+
 
 /*
 	FlowControl class should be in a separate file named as FlowControl.cpp
@@ -135,9 +137,6 @@ using namespace std;
 int main(int argc, char* argv[])
 {
 
-	std::string hash = CalculateMd5Hash("Sc.png");
-	printf("Hash --> %d", hash.size());
-
 	// parse command line
 
 	enum Mode
@@ -149,25 +148,58 @@ int main(int argc, char* argv[])
 	Mode mode = Server;
 	Address address;
 
-	if (argc >= 2)
+	string filename;
+	string task;
+
+	if (argc < 3)
 	{
-		int a, b, c, d;
-		/*
-			Here using command line arguments,
-			we need to implement a machenism by which
-			- app mode can be set to server or client
-			- other end ip address
-			- file transfer or receiver flag
-			- if file transfer then source file path
-			- if file receiving then target file path where file will be save once completed
-		*/
-#pragma warning(suppress : 4996)
-		if (sscanf(argv[1], "%d.%d.%d.%d", &a, &b, &c, &d))
-		{
-			mode = Client;
-			address = Address(a, b, c, d, ServerPort);
-		}
+		printf("Error: Not enough commands passed\n");
+		printf("Usage: filename {-r(request) or -s(send)}\n");
 	}
+	else if (argc > 3)
+	{
+		printf("Error: More than required commands passed\n");
+		printf("Usage: filename {-r(request) or -s(send)}\n");
+	}
+	else
+	{
+		filename = argv[1];
+		task = argv[2];
+		if (task == "-r")
+		{
+			printf("Enter IP: ");
+			int a, b, c, d;
+			
+			/*
+				Here using command line arguments,
+				we need to implement a machenism by which
+				- app mode can be set to server or client
+				- other end ip address
+				- file transfer or receiver flag
+				- if file transfer then source file path
+				- if file receiving then target file path where file will be save once completed
+			*/
+			if (scanf("%d.%d.%d.%d", &a, &b, &c, &d))
+			{
+				mode = Client;
+				address = Address(a, b, c, d, ServerPort);
+			}
+			printf("Requesting file...\n");
+		}
+		else
+		{
+			mode = Server;
+			printf("Sending file...\n");
+		}
+
+	}
+
+
+
+	std::string hash = CalculateMd5Hash(filename);
+	printf("Hash --> %d", hash.size());
+
+
 
 	// initialize
 
@@ -236,6 +268,9 @@ int main(int argc, char* argv[])
 		while (sendAccumulator > 1.0f / sendRate)
 		{
 			unsigned char packet[PacketSize];
+			char data[DataSize];
+			char status[25] = "Processing";
+			bool end = false;
 
 			/*
 				Here it defines the packet buffer and fill it with all 0
@@ -260,6 +295,19 @@ int main(int argc, char* argv[])
 			// Reading header format
 			// sscanf("%s|-|%s|-|%s",ad,aa,aa);
 
+			if (end == true)
+			{
+				strcpy(status, "Done");
+				strcpy(data, (char*)hash.c_str());
+			}
+			else
+			{
+				strcpy(status, "Processing");
+			}
+
+			AddHeader((char*)filename.c_str(), status, data);
+			strcpy((char*)packet, data);
+			
 			memset(packet, 0, sizeof(packet));
 			connection.SendPacket(packet, sizeof(packet));
 			sendAccumulator -= 1.0f / sendRate;
@@ -272,8 +320,30 @@ int main(int argc, char* argv[])
 
 		while (true)
 		{
+			char data[DataSize];
+			char status[25] = "Processing";
+			bool end = false;
+
+			if (end == true)
+			{
+				strcpy(status, "Done");
+				strcpy(data, (char*)hash.c_str());
+			}
+			else
+			{
+				strcpy(status, "Processing");
+			}
 			unsigned char packet[256];
 			int bytes_read = connection.ReceivePacket(packet, sizeof(packet));
+
+			strcpy(data, (char*)packet);
+			ExtractHeader((char*)filename.c_str(), status, data);
+
+			if (strcmp(status, "Done") == 0)
+			{
+				hash = CalculateMd5Hash(filename);
+			}
+
 			if (bytes_read == 0) {
 				break;
 
