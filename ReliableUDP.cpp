@@ -136,6 +136,9 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+	string fileName = "test.txt";
+	std::string hash = CalculateMd5Hash(fileName);
+	printf("Hash --> %d", hash.size());
 
 	// parse command line
 
@@ -231,6 +234,24 @@ int main(int argc, char* argv[])
 	FlowControl flowControl;
 	int packets_Sent = 1;
 
+	// --------------------------------------------------------------------------------
+	ifstream inBigArrayfile;
+	inBigArrayfile.open(fileName, std::ios::binary | std::ios::in);
+
+	//Find length of file
+	inBigArrayfile.seekg(0, std::ios::end);
+	long Length = inBigArrayfile.tellg();
+	inBigArrayfile.seekg(0, std::ios::beg);
+
+	//read in the data from your file
+	char* InFileData = new char[Length];
+	inBigArrayfile.read(InFileData, Length);
+
+	string strFileContent(InFileData);
+
+	long transferredLength = 0;
+	// --------------------------------------------------------------------------------
+
 	while (true)
 	{
 		// update flow control
@@ -268,6 +289,23 @@ int main(int argc, char* argv[])
 		while (sendAccumulator > 1.0f / sendRate)
 		{
 			unsigned char packet[PacketSize];
+			if (strlen(InFileData) > transferredLength)
+			{
+				string strPacket = strFileContent.substr(transferredLength, PacketSize);
+				transferredLength += PacketSize;
+
+				memcpy(packet, strPacket.c_str(), sizeof(packet));
+				connection.SendPacket(packet, sizeof(packet));
+			}
+			/*else {
+				strcpy((char*)packet, "DONE");
+
+				connection.SendPacket(packet, sizeof(packet));
+				sendAccumulator -= 1.0f / sendRate;
+			}*/
+
+			sendAccumulator -= 1.0f / sendRate;
+
 			char data[DataSize];
 			char status[25] = "Processing";
 			bool end = false;
@@ -387,7 +425,7 @@ int main(int argc, char* argv[])
 			for (int i = 1; i < ack_count; ++i)
 				printf(",%d", acks[i]);
 			printf("\n");
-		}
+	}
 #endif
 
 		// update connection
@@ -418,9 +456,9 @@ int main(int argc, char* argv[])
 		}
 
 		net::wait(DeltaTime);
-	}
+}
 
 	ShutdownSockets();
 
 	return 0;
-}
+	}
