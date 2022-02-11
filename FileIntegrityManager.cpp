@@ -41,13 +41,10 @@ int AddHeader(char* fileName, char* transferStatus, char* data)
 	return 0;
 }
 
-int ExtractHeader(char* fileName, char* transferStatus, char* data)
+int ExtractHeader(char* fileName, char* transferStatus, char* input, char* data)
 {
-	strcpy(fileName, "");
-	strcpy(transferStatus, "");
-	strcpy(data, "");
 
-	char temp[5000] = " ";
+
 	char delimiter = '#';
 
 	char c = 'a';
@@ -55,7 +52,7 @@ int ExtractHeader(char* fileName, char* transferStatus, char* data)
 	int j = 1;
 	while (c != '\0')
 	{
-		c = data[i];
+		c = input[i];
 
 		if (j != 3)
 		{
@@ -79,7 +76,7 @@ int ExtractHeader(char* fileName, char* transferStatus, char* data)
 		{
 			strncat(data, &c, 1);
 		}
-	
+
 
 		i++;
 	}
@@ -95,7 +92,6 @@ int ExtractHeader(char* fileName, char* transferStatus, char* data)
 string CalculateMd5Hash(string filename)
 {
 	//Start opening your file
-	ofstream oFile;
 	ifstream inBigArrayfile;
 	inBigArrayfile.open(filename, std::ios::binary | std::ios::in);
 
@@ -108,9 +104,7 @@ string CalculateMd5Hash(string filename)
 	char* InFileData = new char[Length];
 	inBigArrayfile.read(InFileData, Length);
 
-	oFile.open("Scc.png", std::ios::binary | std::ios::out);
-	oFile.write(InFileData, Length);
-	oFile.close();
+
 
 	//Calculate MD5 hash
 	std::string Temp = md5(InFileData, Length);

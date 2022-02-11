@@ -13,7 +13,7 @@ using namespace std;
 #pragma warning (disable:4996)
 
 int AddHeader(char* fileName, char* transferStatus, char* data);
-int ExtractHeader(char* fileName, char* transferStatus, char* data);
+int ExtractHeader(char* fileName, char* transferStatus, char* input, char* data);
 string CalculateMd5Hash(string filename);	
 
 #pragma once

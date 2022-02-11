@@ -4,15 +4,13 @@
 	Author: Glenn Fiedler <gaffer@gaffer.org>
 */
 
+#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
-#include<string.h>
-#include<stdlib.h>
-#include <iostream> //for std::cout
+#include <stdlib.h>
 #include <string.h> //for std::string
-#include <fstream>
 
 #include "Net.h"
 #include "FileIntegrityManager.h"
@@ -35,7 +33,7 @@ const float DeltaTime = 1.0f / 30.0f;
 const float SendRate = 1.0f / 30.0f;
 const float TimeOut = 10.0f;
 const int PacketSize = 256;
-const int DataSize = 150;
+const int DataSize = 256;
 
 
 /*
@@ -131,16 +129,21 @@ private:
 	float penalty_reduction_accumulator;
 };
 
+
+
+
+
+
+
+
+
+
 // ----------------------------------------------
 using namespace std;
 
 int main(int argc, char* argv[])
 {
-	string fileName = "test.txt";
-	std::string hash = CalculateMd5Hash(fileName);
-	printf("Hash --> %d", hash.size());
-
-	// parse command line
+	string fileName;
 
 	enum Mode
 	{
@@ -150,29 +153,29 @@ int main(int argc, char* argv[])
 
 	Mode mode = Server;
 	Address address;
-
-	string filename;
 	string task;
 
-	if (argc < 3)
+
+	if (argc < 4)
 	{
 		printf("Error: Not enough commands passed\n");
-		printf("Usage: filename {-r(request) or -s(send)}\n");
+		printf("Usage: IP{for server 0} FileName Task{-r(request) or -s(send)}\n");
 	}
-	else if (argc > 3)
+	else if (argc > 4)
 	{
 		printf("Error: More than required commands passed\n");
-		printf("Usage: filename {-r(request) or -s(send)}\n");
+		printf("Usage: IP{for server 0} FileName Task{-r(request) or -s(send)}\n");
 	}
 	else
 	{
-		filename = argv[1];
-		task = argv[2];
-		if (task == "-r")
+		if (strcmp(argv[1], "0") == 0)
 		{
-			printf("Enter IP: ");
+			mode = Server;
+		}
+		else
+		{
 			int a, b, c, d;
-			
+
 			/*
 				Here using command line arguments,
 				we need to implement a machenism by which
@@ -182,30 +185,31 @@ int main(int argc, char* argv[])
 				- if file transfer then source file path
 				- if file receiving then target file path where file will be save once completed
 			*/
-			if (scanf("%d.%d.%d.%d", &a, &b, &c, &d))
+			if (sscanf(argv[1], "%d.%d.%d.%d", &a, &b, &c, &d))
 			{
 				mode = Client;
 				address = Address(a, b, c, d, ServerPort);
 			}
+		}
+		string fileName2(argv[2]);
+		fileName = fileName2;
+
+		task = argv[3];
+		if (task == "-r")
+		{
 			printf("Requesting file...\n");
 		}
 		else
 		{
-			mode = Server;
 			printf("Sending file...\n");
 		}
-
 	}
 
 
 
-	std::string hash = CalculateMd5Hash(filename);
-	printf("Hash --> %d", hash.size());
-
 
 
 	// initialize
-
 	if (!InitializeSockets())
 	{
 		printf("failed to initialize sockets\n");
@@ -234,23 +238,40 @@ int main(int argc, char* argv[])
 	FlowControl flowControl;
 	int packets_Sent = 1;
 
-	// --------------------------------------------------------------------------------
-	ifstream inBigArrayfile;
-	inBigArrayfile.open(fileName, std::ios::binary | std::ios::in);
-
-	//Find length of file
-	inBigArrayfile.seekg(0, std::ios::end);
-	long Length = inBigArrayfile.tellg();
-	inBigArrayfile.seekg(0, std::ios::beg);
-
-	//read in the data from your file
-	char* InFileData = new char[Length];
-	inBigArrayfile.read(InFileData, Length);
-
-	string strFileContent(InFileData);
-
+	std::string hash = "";
+	char* inFileData = NULL; //read file data stored here
+	string strFileContent;
 	long transferredLength = 0;
-	// --------------------------------------------------------------------------------
+
+
+
+	//Reading file for sending
+	if (task == "-s")
+	{
+		// --------------------------------------------------------------------------------
+		ifstream inBigArrayfile;
+		inBigArrayfile.open(fileName, std::ios::binary | std::ios::in);
+
+		//Find length of file
+		inBigArrayfile.seekg(0, std::ios::end);
+		long Length = inBigArrayfile.tellg();
+		inBigArrayfile.seekg(0, std::ios::beg);
+
+		//read in the data from your file
+		char* InFileData = new char[Length];
+		inBigArrayfile.read(InFileData, Length);
+		inFileData = InFileData; //read file data stored here
+
+
+		string strFileContent2(InFileData);
+		strFileContent = strFileContent2;
+
+		hash = CalculateMd5Hash(fileName);
+		// --------------------------------------------------------------------------------
+	}
+
+
+
 
 	while (true)
 	{
@@ -286,103 +307,98 @@ int main(int argc, char* argv[])
 
 		sendAccumulator += DeltaTime;
 
+
+
 		while (sendAccumulator > 1.0f / sendRate)
 		{
-			unsigned char packet[PacketSize];
-			if (strlen(InFileData) > transferredLength)
-			{
-				string strPacket = strFileContent.substr(transferredLength, PacketSize);
-				transferredLength += PacketSize;
-
-				memcpy(packet, strPacket.c_str(), sizeof(packet));
-				connection.SendPacket(packet, sizeof(packet));
-			}
-			/*else {
-				strcpy((char*)packet, "DONE");
-
-				connection.SendPacket(packet, sizeof(packet));
-				sendAccumulator -= 1.0f / sendRate;
-			}*/
-
-			sendAccumulator -= 1.0f / sendRate;
 
 			char data[DataSize];
 			char status[25] = "Processing";
-			bool end = false;
+			unsigned char packet[PacketSize];
 
-			/*
-				Here it defines the packet buffer and fill it with all 0
-				instead, it should follow the procols for sending packets
-				also, it should also check
-				if the mode is server or client and task is send file to client,
-				then according to ReliableUDP protocol, it should serialize file meta info and
-				append it with every chunk transferred to the other end
 
-				File meta info must have:-
-				FileName:		It is the name of the file that is being transferred.
-				ContentSize:	It is the size if the actual content data being sent.
-				ContentType:	It is the content type of the data so that the server knows how to store the file.
-				Status:			It is the status code exchange between the client and server.
-				FileDigest:		It is the verification string generated by the appropriate hashing method.
+			if (strlen(inFileData) > transferredLength)
+			{
+				strcpy(status, "Processing");
+				int currPacketSize = PacketSize - 35 - fileName.length() - strlen(status);
+				string strPacket = strFileContent.substr(transferredLength, currPacketSize);
+				transferredLength += currPacketSize;
+				strcpy(data, (char*)strPacket.c_str());
 
-				File meta info must be a serializable string
-				and must follow the sequence: ...filename...|-|...contentsize...|-|...contenttype...|-|...status...|-|...filedigest
-				where "|-|" delimiter to separate attribute values of meta info
-			*/
-
-			// Reading header format
-			// sscanf("%s|-|%s|-|%s",ad,aa,aa);
-
-			if (end == true)
+				AddHeader((char*)fileName.c_str(), status, data);
+				strcpy((char*)packet, data);
+				connection.SendPacket(packet, sizeof(packet));
+				sendAccumulator -= 1.0f / sendRate;
+			}
+			else 
 			{
 				strcpy(status, "Done");
 				strcpy(data, (char*)hash.c_str());
+
+				AddHeader((char*)fileName.c_str(), status, data);
+				strcpy((char*)packet, data);
+				connection.SendPacket(packet, sizeof(packet));
+
+
+				strcpy((char*)packet, "");
+				connection.SendPacket(packet, sizeof(packet));
+				sendAccumulator -= 1.0f / sendRate;
+				break;
 			}
-			else
-			{
-				strcpy(status, "Processing");
-			}
-
-			AddHeader((char*)filename.c_str(), status, data);
-			strcpy((char*)packet, data);
-			
-			memset(packet, 0, sizeof(packet));
-			connection.SendPacket(packet, sizeof(packet));
-			sendAccumulator -= 1.0f / sendRate;
-			packets_Sent += 1;
-
-
-			//#pragma warning(suppress : 4996)
-			//			sprintf((char*) packet, "Hello World %d", packets_Sent);
 		}
+
+
+
+
 
 		while (true)
 		{
-			char data[DataSize];
+		    char data[DataSize];
+			string fileContent;
 			char status[25] = "Processing";
-			bool end = false;
 
-			if (end == true)
-			{
-				strcpy(status, "Done");
-				strcpy(data, (char*)hash.c_str());
-			}
-			else
-			{
-				strcpy(status, "Processing");
-			}
-			unsigned char packet[256];
+		
+			unsigned char packet[PacketSize];
+
 			int bytes_read = connection.ReceivePacket(packet, sizeof(packet));
 
-			strcpy(data, (char*)packet);
-			ExtractHeader((char*)filename.c_str(), status, data);
+			
+			//strcpy(data, (char*)packet);
+			char _fileName[150] = "";
+			strcpy(status, "");
+			strcpy(data, "");
+			ExtractHeader(_fileName, status, (char*)packet, data);
 
+			
 			if (strcmp(status, "Done") == 0)
 			{
-				hash = CalculateMd5Hash(filename);
+				ofstream oFile;
+
+				oFile.open("rev.txt", std::ios::binary | std::ios::out);
+				oFile.write(fileContent.c_str(), fileContent.length());
+				oFile.close();
+				hash = CalculateMd5Hash("rev.txt");
+
+				if (strcmp(hash.c_str(), data) == 0)
+				{
+					printf("File transfer successfully\n");
+
+				}
+				else
+				{
+					printf("File transfer failed\n");
+				}
+			}
+			else if (strcmp(status, "Processing") == 0)
+			{
+				string data2(data);
+				fileContent += data2;
 			}
 
-			if (bytes_read == 0) {
+
+			if (bytes_read == 0)
+			{
+				
 				break;
 
 				/*
@@ -402,12 +418,13 @@ int main(int argc, char* argv[])
 					FileDigest:		It is the verification string generated by the appropriate hashing method.
 
 					File meta info must be a serializable string
-					and must follow the sequence: ...filename...|-|...contentsize...|-|...contenttype...|-|...status...|-|...filedigest
+					and must follow the sequence: ...fileName...|-|...contentsize...|-|...contenttype...|-|...status...|-|...filedigest
 					where "|-|" delimiter to separate attribute values of meta info
 				*/
 
 			}
-			else {
+			else
+			{
 
 				printf("%s\n", packet);
 			}
@@ -425,7 +442,7 @@ int main(int argc, char* argv[])
 			for (int i = 1; i < ack_count; ++i)
 				printf(",%d", acks[i]);
 			printf("\n");
-	}
+		}
 #endif
 
 		// update connection
@@ -456,9 +473,12 @@ int main(int argc, char* argv[])
 		}
 
 		net::wait(DeltaTime);
-}
 
-	ShutdownSockets();
+
+		ShutdownSockets();
+
+
+	}
 
 	return 0;
-	}
+}
