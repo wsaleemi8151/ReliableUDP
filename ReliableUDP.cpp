@@ -19,6 +19,9 @@
 #include "FileOperations.h"
 #include"MD5.h"
 
+#include <chrono>
+#include <thread>
+
 //#define SHOW_ACKS
 
 using namespace std;
@@ -167,6 +170,9 @@ int main(int argc, char* argv[])
 	printf("content -> %s\n", content);*/
 
 	string fileName;
+
+	// Record start time
+	auto start = std::chrono::high_resolution_clock::now();
 
 	enum Mode
 	{
@@ -395,6 +401,42 @@ int main(int argc, char* argv[])
 				sendAccumulator -= 1.0f / sendRate;
 
 				isFinishedTransfer = true;
+
+				if (mode == Client)
+				{
+					// ----------------------------------------------
+					// hard coded for now 
+					double fileContentLengthInMegaBits = ((625712 * 8) / 1024) / 1024;
+					// ----------------------------------------------
+
+					auto finish = std::chrono::high_resolution_clock::now();
+					std::chrono::duration<double> elapsed = finish - start;
+
+					// number of seconds spent to transfer the file
+					double timeSpent = elapsed.count();
+
+					// transfer rate in megabits
+					double transferRate = (fileContentLengthInMegaBits) / timeSpent;
+
+					// 
+					printf("\n\n------------------------------------------------------------------\n");
+					printf("\t\tFile Transfer completed");
+					printf("\n------------------------------------------------------------------\n\n");
+					printf("\tFile Name: %s\n", fileName.c_str());
+					printf("\tFile size: %02f\n", fileContentLengthInMegaBits);
+					printf("\tTime spent (in seconds): %02f\n", timeSpent);
+					printf("\tFile transfer rate: %02f (megabits/sec)\n", transferRate);
+					printf("\n------------------------------------------------------------------\n");
+
+
+					/*
+						cout << "Hello I'm waiting...." << endl;
+						this_thread::sleep_for(chrono::milliseconds(20000) );
+						cout << "Waited 20000 ms\n";
+					
+					*/
+				}
+
 				break;
 			}
 		}
