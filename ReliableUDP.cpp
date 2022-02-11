@@ -317,7 +317,6 @@ int main(int argc, char* argv[])
 		hash = CalculateMd5Hash(fileName);
 		isFinishedTransfer = false;
 
-		delete[] content;
 		// --------------------------------------------------------------------------------
 	
 	}
