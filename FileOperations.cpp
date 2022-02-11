@@ -40,6 +40,7 @@ void ReadFile(string fileName, char* content)
 
 void WritetoFile(string fileName, char* content, long length)
 {
+
 	ofstream oFile;
 
 	oFile.open(fileName, std::ios::binary | std::ios::out);

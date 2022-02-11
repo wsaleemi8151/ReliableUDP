@@ -358,7 +358,7 @@ int main(int argc, char* argv[])
 		sendAccumulator += DeltaTime;
 
 
-
+		string strPacket = "";
 		while (sendAccumulator > 1.0f / sendRate)
 		{
 			if (isFinishedTransfer)
@@ -376,15 +376,17 @@ int main(int argc, char* argv[])
 			{
 				strcpy(status, "Processing");
 				int currPacketSize = PacketSize - 35 - fileName.length() - strlen(status);
-				string strPacket = strFileContent.substr(transferredLength, currPacketSize);
-				transferredLength += currPacketSize;
+				strPacket = strFileContent.substr(transferredLength, currPacketSize);
+				transferredLength += strPacket.length();
 				strcpy(data, (char*)strPacket.c_str());
 
 				AddHeader((char*)fileName.c_str(), status, (char*)strLength.c_str(), data);
 				strcpy((char*)packet, data);
 				connection.SendPacket(packet, sizeof(packet));
 				sendAccumulator -= 1.0f / sendRate;
-				//usleep(1000);
+				this_thread::sleep_for(chrono::milliseconds(1000));
+
+
 			}
 			else
 			{
@@ -402,11 +404,13 @@ int main(int argc, char* argv[])
 
 				isFinishedTransfer = true;
 
+				long completefilelen = atol(strLength.c_str());
+
 				if (mode == Client)
 				{
 					// ----------------------------------------------
 					// hard coded for now 
-					double fileContentLengthInMegaBits = ((625712 * 8) / 1024) / 1024;
+					double fileContentLengthInMegaBits = ((completefilelen * 8) / 1024) / 1024;
 					// ----------------------------------------------
 
 					auto finish = std::chrono::high_resolution_clock::now();
@@ -423,7 +427,7 @@ int main(int argc, char* argv[])
 					printf("\t\tFile Transfer completed");
 					printf("\n------------------------------------------------------------------\n\n");
 					printf("\tFile Name: %s\n", fileName.c_str());
-					printf("\tFile size: %02f\n", fileContentLengthInMegaBits);
+					printf("\tFile size (bytes): %02l\n", completefilelen);
 					printf("\tTime spent (in seconds): %02f\n", timeSpent);
 					printf("\tFile transfer rate: %02f (megabits/sec)\n", transferRate);
 					printf("\n------------------------------------------------------------------\n");
@@ -479,28 +483,31 @@ int main(int argc, char* argv[])
 			{
 				
 				lengthrecv = atol(lengthgot);
-				WritetoFile("ok.txt", (char*)fileContent.c_str(), lengthrecv);
+				WritetoFile(_fileName, (char*)fileContent.c_str(), lengthrecv);
 				/*ofstream oFile;
 
 				oFile.open("okgood.txt", std::ios::binary | std::ios::out);
 				oFile.write(fileContent.c_str(), fileContent.length());
 				oFile.close();*/
-				hash = CalculateMd5Hash("ok.txt");
+				hash = CalculateMd5Hash(_fileName);
 
 				if (strcmp(hash.c_str(), data) == 0)
 				{
-					printf("File transfer successfully\n");
+					printf("File transferred with no error.\n");
 
 				}
 				else
 				{
-					printf("File transfer failed\n");
+					printf("File transferred with errors.\n");
 				}
 			}
 			else if (strcmp(status, "Processing") == 0)
 			{
+
 				string data2(data);
 				fileContent += data2;
+				this_thread::sleep_for(chrono::milliseconds(1000));
+
 			}
 
 
