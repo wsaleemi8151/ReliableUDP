@@ -24,7 +24,7 @@ using namespace std;
 #pragma warning (disable:4996)
 
 
-int AddHeader(char* fileName, char* transferStatus, char* data)
+int AddHeader(char* fileName, char* transferStatus, char* length, char* data)
 {
 	char temp[5000] = " ";
 	char delimiter = '#';
@@ -32,6 +32,8 @@ int AddHeader(char* fileName, char* transferStatus, char* data)
 	strcat(temp, fileName);
 	strncat(temp, &delimiter, 1);
 	strcat(temp, transferStatus);
+	strncat(temp, &delimiter, 1);
+	strcat(temp, length);
 	strncat(temp, &delimiter, 1);
 	strcat(temp, data);
 
@@ -41,7 +43,7 @@ int AddHeader(char* fileName, char* transferStatus, char* data)
 	return 0;
 }
 
-int ExtractHeader(char* fileName, char* transferStatus, char* input, char* data)
+int ExtractHeader(char* fileName, char* transferStatus, char* input, char* length, char* data)
 {
 
 
@@ -54,7 +56,7 @@ int ExtractHeader(char* fileName, char* transferStatus, char* input, char* data)
 	{
 		c = input[i];
 
-		if (j != 3)
+		if (j != 4)
 		{
 			if (c == delimiter)
 			{
@@ -74,6 +76,10 @@ int ExtractHeader(char* fileName, char* transferStatus, char* input, char* data)
 		}
 		else if (j == 3)
 		{
+			strncat(length, &c, 1);
+		}
+		else if (j == 4)
+		{
 			strncat(data, &c, 1);
 		}
 
@@ -86,12 +92,10 @@ int ExtractHeader(char* fileName, char* transferStatus, char* input, char* data)
 
 
 
-
-
-
 string CalculateMd5Hash(string filename)
 {
 	//Start opening your file
+	ofstream oFile;
 	ifstream inBigArrayfile;
 	inBigArrayfile.open(filename, std::ios::binary | std::ios::in);
 
@@ -116,5 +120,65 @@ string CalculateMd5Hash(string filename)
 	return Temp;
 }
 
+//
+//string CalculateMd5Hash(string filename)
+//{
+//
+//
+//
+//	//Start opening your file
+//	ifstream inBigArrayfile;
+//	inBigArrayfile.open(filename, std::ios::binary | std::ios::in);
+//
+//	//Find length of file
+//	inBigArrayfile.seekg(0, std::ios::end);
+//	long Length = inBigArrayfile.tellg();
+//	inBigArrayfile.seekg(0, std::ios::beg);
+//
+//	//read in the data from your file
+//	char* InFileData = new char[Length];
+//	inBigArrayfile.read(InFileData, Length);
+//
+//
+//
+//	//Calculate MD5 hash
+//	std::string Temp = md5(InFileData, Length);
+//	cout << Temp.c_str() << endl;
+//
+//	//Clean up
+//	delete[] InFileData;
+//
+//	return Temp;
+//}
 
+
+long ReadFileLength(string filename)
+{
+	ifstream inBigArrayfile;
+	inBigArrayfile.open(filename, std::ios::binary | std::ios::in);
+
+	//Find length of file
+	inBigArrayfile.seekg(0, std::ios::end);
+	long Length = inBigArrayfile.tellg();
+	inBigArrayfile.seekg(0, std::ios::beg);
+
+	inBigArrayfile.close();
+
+	return Length;
+}
+
+
+void ReadFiletoString(string filename, char* contents, long Length)
+{
+	ifstream inBigArrayfile;
+	inBigArrayfile.open(filename, std::ios::binary | std::ios::in);
+
+	//read in the data from your file
+	//char* InFileData = new char[Length];
+	//strcpy(InFileData, "");
+	inBigArrayfile.read(contents, Length);
+	//strcpy(contents, InFileData);//read file data stored here
+
+	inBigArrayfile.close();
+}
 

@@ -17,7 +17,9 @@ using namespace std;
 
 
 void ReadFile(string fileName, char* content);
-void WriteFile(string fileName, char* content);
+void WritetoFile(string fileName, char* content, long length);
+
+//id WriteFile(string fileName, char* content);
 
 
 

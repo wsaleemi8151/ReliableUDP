@@ -11,9 +11,12 @@
 #include <vector>
 #include <stdlib.h>
 #include <string.h> //for std::string
+#include <thread>
+
 
 #include "Net.h"
 #include "FileIntegrityManager.h"
+#include "FileOperations.h"
 #include"MD5.h"
 
 //#define SHOW_ACKS
@@ -143,6 +146,26 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+
+	/*char* content;
+	long length = ReadFileLength("Sc.png");
+
+	content = new char[length];
+
+
+	ReadFiletoString("Sc.png", content, length);
+	WritetoFile("Scc.png", content, length);*/
+	//ofstream oFile;
+	//
+	//oFile.open("Scc.png", std::ios::binary | std::ios::out);
+	//oFile.write(content, length);
+	//oFile.close();
+
+
+	/*CalculateMd5Hash("Sc.png");
+
+	printf("content -> %s\n", content);*/
+
 	string fileName;
 
 	enum Mode
@@ -246,6 +269,11 @@ int main(int argc, char* argv[])
 	char* inFileData = NULL; //read file data stored here
 	string strFileContent;
 	long transferredLength = 0;
+	long length;
+	char* content = NULL;
+	string strLength;
+
+	
 
 	bool isFinishedTransfer = false;
 
@@ -253,27 +281,37 @@ int main(int argc, char* argv[])
 	//Reading file for sending
 	if (task == "-s")
 	{
+
+		length = ReadFileLength(fileName);
+		content = new char[length];
+		ReadFiletoString(fileName, content, length);
+
+		strLength = to_string(length);
+		
+
 		// --------------------------------------------------------------------------------
-		ifstream inBigArrayfile;
-		inBigArrayfile.open(fileName, std::ios::binary | std::ios::in);
 
-		//Find length of file
-		inBigArrayfile.seekg(0, std::ios::end);
-		long Length = inBigArrayfile.tellg();
-		inBigArrayfile.seekg(0, std::ios::beg);
+		//ifstream inBigArrayfile;
+		//inBigArrayfile.open(fileName, std::ios::binary | std::ios::in);
 
-		//read in the data from your file
-		char* InFileData = new char[Length];
-		inBigArrayfile.read(InFileData, Length);
-		inFileData = InFileData; //read file data stored here
+		////Find length of file
+		//inBigArrayfile.seekg(0, std::ios::end);
+		//long Length = inBigArrayfile.tellg();
+		//inBigArrayfile.seekg(0, std::ios::beg);
+
+		////read in the data from your file
+		//char* InFileData = new char[Length];
+		//inBigArrayfile.read(InFileData, Length);
+		//inFileData = InFileData; //read file data stored here
 
 
-		string strFileContent2(InFileData);
+		string strFileContent2(content);
 		strFileContent = strFileContent2;
 
 		hash = CalculateMd5Hash(fileName);
 		isFinishedTransfer = false;
 		// --------------------------------------------------------------------------------
+	
 	}
 
 
@@ -328,7 +366,7 @@ int main(int argc, char* argv[])
 			unsigned char packet[PacketSize];
 
 
-			if (inFileData && strlen(inFileData) > transferredLength)
+			if (content && strlen(content) > transferredLength)
 			{
 				strcpy(status, "Processing");
 				int currPacketSize = PacketSize - 35 - fileName.length() - strlen(status);
@@ -336,17 +374,18 @@ int main(int argc, char* argv[])
 				transferredLength += currPacketSize;
 				strcpy(data, (char*)strPacket.c_str());
 
-				AddHeader((char*)fileName.c_str(), status, data);
+				AddHeader((char*)fileName.c_str(), status, (char*)strLength.c_str(), data);
 				strcpy((char*)packet, data);
 				connection.SendPacket(packet, sizeof(packet));
 				sendAccumulator -= 1.0f / sendRate;
+				//usleep(1000);
 			}
 			else
 			{
 				strcpy(status, "Done");
 				strcpy(data, (char*)hash.c_str());
 
-				AddHeader((char*)fileName.c_str(), status, data);
+				AddHeader((char*)fileName.c_str(), status, (char*)strLength.c_str(), data);
 				strcpy((char*)packet, data);
 				connection.SendPacket(packet, sizeof(packet));
 
@@ -367,6 +406,8 @@ int main(int argc, char* argv[])
 		char data[DataSize];
 		string fileContent;
 		char status[25] = "Processing";
+		long lengthrecv;
+		char lengthgot[35];
 
 
 		unsigned char packet[PacketSize];
@@ -388,17 +429,21 @@ int main(int argc, char* argv[])
 			char _fileName[150] = "";
 			strcpy(status, "");
 			strcpy(data, "");
-			ExtractHeader(_fileName, status, (char*)packet, data);
+			strcpy(lengthgot, "");
+			ExtractHeader(_fileName, status, (char*)packet, lengthgot, data);
 
 
 			if (strcmp(status, "Done") == 0)
 			{
-				ofstream oFile;
+				
+				lengthrecv = atol(lengthgot);
+				WritetoFile("ok.txt", (char*)fileContent.c_str(), lengthrecv);
+				/*ofstream oFile;
 
-				oFile.open("rev.txt", std::ios::binary | std::ios::out);
+				oFile.open("okgood.txt", std::ios::binary | std::ios::out);
 				oFile.write(fileContent.c_str(), fileContent.length());
-				oFile.close();
-				hash = CalculateMd5Hash("rev.txt");
+				oFile.close();*/
+				hash = CalculateMd5Hash("ok.txt");
 
 				if (strcmp(hash.c_str(), data) == 0)
 				{

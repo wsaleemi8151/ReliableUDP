@@ -38,11 +38,11 @@ void ReadFile(string fileName, char* content)
 	strcpy(content, InFileData);
 }
 
-void WriteFile(string fileName, char* content)
+void WritetoFile(string fileName, char* content, long length)
 {
 	ofstream oFile;
 
 	oFile.open(fileName, std::ios::binary | std::ios::out);
-	oFile.write(content, strlen(content));
+	oFile.write(content, length);
 	oFile.close();
 }
