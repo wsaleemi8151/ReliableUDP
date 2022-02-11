@@ -122,6 +122,8 @@ long ReadFileLength(string filename)
 	inBigArrayfile.seekg(0, std::ios::end);
 	long Length = inBigArrayfile.tellg();
 	inBigArrayfile.seekg(0, std::ios::beg);
+
+	inBigArrayfile.close();
 	return Length;
 }
 
@@ -131,5 +133,7 @@ void ReadFiletoString(string filename, char* contents, long Length)
 	ifstream inBigArrayfile;
 	inBigArrayfile.open(filename, std::ios::binary | std::ios::in);
 	inBigArrayfile.read(contents, Length);
+
+	inBigArrayfile.close();
 }
 

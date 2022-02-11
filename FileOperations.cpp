@@ -34,6 +34,8 @@ void ReadFile(string fileName, char* content)
 	char* InFileData = new char[Length];
 	inBigArrayfile.read(InFileData, Length);
 	strcpy(content, InFileData);
+
+	inBigArrayfile.close();
 }
 
 void WritetoFile(string fileName, char* content, long length)
