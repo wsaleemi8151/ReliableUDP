@@ -43,7 +43,7 @@ int AddHeader(char* fileName, char* transferStatus, char* length, char* data)
 	return 0;
 }
 
-int ExtractHeader(char* fileName, char* transferStatus, char* input, char* length, char* data)
+int ExtractHeader(char* fileName, char* transferStatus, unsigned char* input, char* length, char* data)
 {
 
 

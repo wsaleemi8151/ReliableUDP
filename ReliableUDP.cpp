@@ -384,7 +384,7 @@ int main(int argc, char* argv[])
 				strcpy((char*)packet, data);
 				connection.SendPacket(packet, sizeof(packet));
 				sendAccumulator -= 1.0f / sendRate;
-				this_thread::sleep_for(chrono::milliseconds(1000));
+				this_thread::sleep_for(chrono::milliseconds(100));
 
 
 			}
@@ -476,7 +476,7 @@ int main(int argc, char* argv[])
 			strcpy(status, "");
 			strcpy(data, "");
 			strcpy(lengthgot, "");
-			ExtractHeader(_fileName, status, (char*)packet, lengthgot, data);
+			ExtractHeader(_fileName, status, packet, lengthgot, data);
 
 
 			if (strcmp(status, "Done") == 0)
@@ -506,7 +506,7 @@ int main(int argc, char* argv[])
 
 				string data2(data);
 				fileContent += data2;
-				this_thread::sleep_for(chrono::milliseconds(1000));
+				this_thread::sleep_for(chrono::milliseconds(100));
 
 			}
 

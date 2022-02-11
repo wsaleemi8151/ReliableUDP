@@ -13,7 +13,7 @@ using namespace std;
 #pragma warning (disable:4996)
 
 int AddHeader(char* fileName, char* transferStatus, char* length, char* data);
-int ExtractHeader(char* fileName, char* transferStatus, char* input, char* length, char* data);
+int ExtractHeader(char* fileName, char* transferStatus, unsigned char* input, char* length, char* data);
 
 //int AddHeader(char* fileName, char* transferStatus, char* data);
 //int ExtractHeader(char* fileName, char* transferStatus, char* input, char* data);
