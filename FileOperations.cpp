@@ -46,4 +46,6 @@ void WritetoFile(string fileName, char* content, long length)
 	oFile.open(fileName, std::ios::binary | std::ios::out);
 	oFile.write(content, length);
 	oFile.close();
+
+	oFile.flush();
 }

@@ -316,6 +316,8 @@ int main(int argc, char* argv[])
 
 		hash = CalculateMd5Hash(fileName);
 		isFinishedTransfer = false;
+
+		delete[] content;
 		// --------------------------------------------------------------------------------
 	
 	}
@@ -500,6 +502,8 @@ int main(int argc, char* argv[])
 				{
 					printf("File transferred with errors.\n");
 				}
+
+
 			}
 			else if (strcmp(status, "Processing") == 0)
 			{

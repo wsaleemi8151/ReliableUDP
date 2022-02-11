@@ -162,7 +162,7 @@ long ReadFileLength(string filename)
 	long Length = inBigArrayfile.tellg();
 	inBigArrayfile.seekg(0, std::ios::beg);
 
-	inBigArrayfile.close();
+	
 
 	return Length;
 }
@@ -179,6 +179,5 @@ void ReadFiletoString(string filename, char* contents, long Length)
 	inBigArrayfile.read(contents, Length);
 	//strcpy(contents, InFileData);//read file data stored here
 
-	inBigArrayfile.close();
 }
 
