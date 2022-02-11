@@ -1,3 +1,13 @@
+/*
+* FILE : MD5.h
+* PROJECT : SENG2040-22W-Sec1-Network Application Development - Assignment # 1
+* PROGRAMMER : Gursharan Singh - Waqar Ali Saleemi
+* FIRST VERSION : 2022-01-25
+* DESCRIPTION :
+* Header file for prototypes
+*/
+
+
 /* MD5
  converted to C++ class by Frank Thilo (thilo@unix-ag.org)
  for bzflag (http://www.bzflag.org)

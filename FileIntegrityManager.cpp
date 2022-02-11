@@ -7,8 +7,6 @@
 * The functions in this file are used to check and verify the file transfer integrity
 */
 
-
-
 #include<string.h>
 #include<stdlib.h>
 #include <iostream> //for std::cout
@@ -17,12 +15,10 @@
 #include "MD5.h"
 #include "FileIntegrityManager.h"
 
-
 using std::cout; using std::endl;
 using namespace std;
 
 #pragma warning (disable:4996)
-
 
 int AddHeader(char* fileName, char* transferStatus, char* length, char* data)
 {
@@ -36,8 +32,6 @@ int AddHeader(char* fileName, char* transferStatus, char* length, char* data)
 	strcat(temp, length);
 	strncat(temp, &delimiter, 1);
 	strcat(temp, data);
-
-
 	strcpy(data, temp);
 
 	return 0;
@@ -45,8 +39,6 @@ int AddHeader(char* fileName, char* transferStatus, char* length, char* data)
 
 int ExtractHeader(char* fileName, char* transferStatus, unsigned char* input, char* length, char* data)
 {
-
-
 	char delimiter = '#';
 
 	char c = 'a';
@@ -120,37 +112,6 @@ string CalculateMd5Hash(string filename)
 	return Temp;
 }
 
-//
-//string CalculateMd5Hash(string filename)
-//{
-//
-//
-//
-//	//Start opening your file
-//	ifstream inBigArrayfile;
-//	inBigArrayfile.open(filename, std::ios::binary | std::ios::in);
-//
-//	//Find length of file
-//	inBigArrayfile.seekg(0, std::ios::end);
-//	long Length = inBigArrayfile.tellg();
-//	inBigArrayfile.seekg(0, std::ios::beg);
-//
-//	//read in the data from your file
-//	char* InFileData = new char[Length];
-//	inBigArrayfile.read(InFileData, Length);
-//
-//
-//
-//	//Calculate MD5 hash
-//	std::string Temp = md5(InFileData, Length);
-//	cout << Temp.c_str() << endl;
-//
-//	//Clean up
-//	delete[] InFileData;
-//
-//	return Temp;
-//}
-
 
 long ReadFileLength(string filename)
 {
@@ -161,9 +122,6 @@ long ReadFileLength(string filename)
 	inBigArrayfile.seekg(0, std::ios::end);
 	long Length = inBigArrayfile.tellg();
 	inBigArrayfile.seekg(0, std::ios::beg);
-
-	
-
 	return Length;
 }
 
@@ -172,12 +130,6 @@ void ReadFiletoString(string filename, char* contents, long Length)
 {
 	ifstream inBigArrayfile;
 	inBigArrayfile.open(filename, std::ios::binary | std::ios::in);
-
-	//read in the data from your file
-	//char* InFileData = new char[Length];
-	//strcpy(InFileData, "");
 	inBigArrayfile.read(contents, Length);
-	//strcpy(contents, InFileData);//read file data stored here
-
 }
 

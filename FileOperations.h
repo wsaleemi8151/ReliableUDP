@@ -1,4 +1,11 @@
-#pragma once
+/*
+* FILE : FileOperations.h
+* PROJECT : SENG2040-22W-Sec1-Network Application Development - Assignment # 1
+* PROGRAMMER : Gursharan Singh - Waqar Ali Saleemi
+* FIRST VERSION : 2022-01-25
+* DESCRIPTION :
+* Header file for prototypes
+*/
 
 #include<string.h>
 #include<stdlib.h>
@@ -9,19 +16,13 @@
 #include "FileOperations.h"
 
 
-
 using std::cout; using std::endl;
 using namespace std;
 
 #pragma warning (disable:4996)
 
-
 void ReadFile(string fileName, char* content);
 void WritetoFile(string fileName, char* content, long length);
-
-//id WriteFile(string fileName, char* content);
-
-
 
 class FileOperations
 {

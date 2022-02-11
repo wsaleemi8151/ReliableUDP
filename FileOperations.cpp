@@ -7,7 +7,6 @@
 * The functions in this file are used to handle reading/writing files to/from the file system
 */
 
-
 #include<string.h>
 #include<stdlib.h>
 #include <iostream> //for std::cout
@@ -16,11 +15,10 @@
 #include "MD5.h"
 #include "FileOperations.h"
 
-
 using std::cout; using std::endl;
 using namespace std;
-#pragma warning (disable:4996)
 
+#pragma warning (disable:4996)
 
 void ReadFile(string fileName, char* content)
 {
@@ -40,7 +38,6 @@ void ReadFile(string fileName, char* content)
 
 void WritetoFile(string fileName, char* content, long length)
 {
-
 	ofstream oFile;
 
 	oFile.open(fileName, std::ios::binary | std::ios::out);

@@ -1,4 +1,15 @@
 /*
+* FILE : ReliableUDP.cpp
+* PROJECT : SENG2040-22W-Sec1-Network Application Development - Assignment # 1
+* PROGRAMMER : Gursharan Singh - Waqar Ali Saleemi
+* FIRST VERSION : 2022-01-25
+* DESCRIPTION :
+* The functions in this file are used to handle file transfer via Socket.
+* Application be run in Client mode or server mode based on configurations provided in command line args
+*/
+
+
+/*
 	Reliability and Flow Control Example
 	From "Networking for Game Programmers" - http://www.gaffer.org/networking-for-game-programmers
 	Author: Glenn Fiedler <gaffer@gaffer.org>
@@ -12,8 +23,6 @@
 #include <stdlib.h>
 #include <string.h> //for std::string
 #include <thread>
-
-
 #include "Net.h"
 #include "FileIntegrityManager.h"
 #include "FileOperations.h"
@@ -22,16 +31,10 @@
 #include <chrono>
 #include <thread>
 
-//#define SHOW_ACKS
-
 using namespace std;
 using namespace net;
 
-/*
-	All these const should be set in Configuration file
-	so it would be easier to change when deployed on any server or
-	using it on some different computer.
-*/
+
 const int ServerPort = 30000;
 const int ClientPort = 30001;
 const int ProtocolId = 0x11223344;
@@ -138,37 +141,11 @@ private:
 
 
 
-
-
-
-
-
-
 // ----------------------------------------------
 using namespace std;
 
 int main(int argc, char* argv[])
 {
-
-	/*char* content;
-	long length = ReadFileLength("Sc.png");
-
-	content = new char[length];
-
-
-	ReadFiletoString("Sc.png", content, length);
-	WritetoFile("Scc.png", content, length);*/
-	//ofstream oFile;
-	//
-	//oFile.open("Scc.png", std::ios::binary | std::ios::out);
-	//oFile.write(content, length);
-	//oFile.close();
-
-
-	/*CalculateMd5Hash("Sc.png");
-
-	printf("content -> %s\n", content);*/
-
 	string fileName;
 
 	// Record start time
@@ -188,7 +165,7 @@ int main(int argc, char* argv[])
 	if (argc != 2 && argc != 4)
 	{
 		printf("Error: Not enough commands passed\n");
-		printf("Usage: Run As Server:- ReliableUDP.exe 0 ---- Run As Client:- ReliableUDP.exe ServerIP FileName Task{-r(request) or -s(send)}]\n");
+		printf("Usage: Run As Server:- ReliableUDP.exe 0 ---- Run As Client:- ReliableUDP.exe ServerIP FileName -s(send)\n");
 	}
 	else
 	{
@@ -200,15 +177,6 @@ int main(int argc, char* argv[])
 		{
 			int a, b, c, d;
 
-			/*
-				Here using command line arguments,
-				we need to implement a machenism by which
-				- app mode can be set to server or client
-				- other end ip address
-				- file transfer or receiver flag
-				- if file transfer then source file path
-				- if file receiving then target file path where file will be save once completed
-			*/
 			if (sscanf(argv[1], "%d.%d.%d.%d", &a, &b, &c, &d))
 			{
 				mode = Client;
@@ -217,7 +185,7 @@ int main(int argc, char* argv[])
 			else
 			{
 				printf("Error: Not enough or incorrect commands passed\n");
-				printf("Usage: Run As Server:- ReliableUDP.exe 0 ---- Run As Client:- ReliableUDP.exe ServerIP FileName Task{-r(request) or -s(send)}]\n");
+				printf("Usage: Run As Server:- ReliableUDP.exe 0 ---- Run As Client:- ReliableUDP.exe ServerIP FileName -s(send)\n");
 			}
 		}
 
@@ -237,10 +205,6 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
-
-
-
-
 
 	// initialize
 	if (!InitializeSockets())
@@ -279,7 +243,7 @@ int main(int argc, char* argv[])
 	char* content = NULL;
 	string strLength;
 
-	
+
 
 	bool isFinishedTransfer = false;
 
@@ -287,54 +251,29 @@ int main(int argc, char* argv[])
 	//Reading file for sending
 	if (task == "-s")
 	{
-
 		length = ReadFileLength(fileName);
 		content = new char[length];
 		ReadFiletoString(fileName, content, length);
 
 		strLength = to_string(length);
-		
-
-		// --------------------------------------------------------------------------------
-
-		//ifstream inBigArrayfile;
-		//inBigArrayfile.open(fileName, std::ios::binary | std::ios::in);
-
-		////Find length of file
-		//inBigArrayfile.seekg(0, std::ios::end);
-		//long Length = inBigArrayfile.tellg();
-		//inBigArrayfile.seekg(0, std::ios::beg);
-
-		////read in the data from your file
-		//char* InFileData = new char[Length];
-		//inBigArrayfile.read(InFileData, Length);
-		//inFileData = InFileData; //read file data stored here
-
 
 		string strFileContent2(content);
 		strFileContent = strFileContent2;
 
 		hash = CalculateMd5Hash(fileName);
 		isFinishedTransfer = false;
-
-		// --------------------------------------------------------------------------------
-	
 	}
 
-
-
-
+	// main while forever loop
 	while (true)
 	{
 		// update flow control
-
 		if (connection.IsConnected())
 			flowControl.Update(DeltaTime, connection.GetReliabilitySystem().GetRoundTripTime() * 1000.0f);
 
 		const float sendRate = flowControl.GetSendRate();
 
 		// detect changes in connection state
-
 		if (mode == Server && connected && !connection.IsConnected())
 		{
 			flowControl.Reset();
@@ -386,8 +325,6 @@ int main(int argc, char* argv[])
 				connection.SendPacket(packet, sizeof(packet));
 				sendAccumulator -= 1.0f / sendRate;
 				this_thread::sleep_for(chrono::milliseconds(100));
-
-
 			}
 			else
 			{
@@ -409,10 +346,7 @@ int main(int argc, char* argv[])
 
 				if (mode == Client)
 				{
-					// ----------------------------------------------
-					// hard coded for now 
-					double fileContentLengthInMegaBits = ((completefilelen * 8) / 1024) / 1024;
-					// ----------------------------------------------
+					double fileContentLengthInMegaBits = ((completefilelen * static_cast<double>(8)) / 1024) / 1024;
 
 					auto finish = std::chrono::high_resolution_clock::now();
 					std::chrono::duration<double> elapsed = finish - start;
@@ -423,7 +357,6 @@ int main(int argc, char* argv[])
 					// transfer rate in megabits
 					double transferRate = (fileContentLengthInMegaBits) / timeSpent;
 
-					// 
 					printf("\n\n------------------------------------------------------------------\n");
 					printf("\t\tFile Transfer completed");
 					printf("\n------------------------------------------------------------------\n\n");
@@ -433,13 +366,6 @@ int main(int argc, char* argv[])
 					printf("\tFile transfer rate: %02f (megabits/sec)\n", transferRate);
 					printf("\n------------------------------------------------------------------\n");
 
-
-					/*
-						cout << "Hello I'm waiting...." << endl;
-						this_thread::sleep_for(chrono::milliseconds(20000) );
-						cout << "Waited 20000 ms\n";
-					
-					*/
 				}
 
 				break;
@@ -447,15 +373,11 @@ int main(int argc, char* argv[])
 		}
 
 
-
-
-
 		char data[DataSize];
 		string fileContent;
 		char status[25] = "Processing";
 		long lengthrecv;
 		char lengthgot[35];
-
 
 		unsigned char packet[PacketSize];
 		while (true)
@@ -472,24 +394,18 @@ int main(int argc, char* argv[])
 				printf("%s\n", packet);
 			}
 
-			//strcpy(data, (char*)packet);
 			char _fileName[150] = "";
 			strcpy(status, "");
 			strcpy(data, "");
 			strcpy(lengthgot, "");
 			ExtractHeader(_fileName, status, packet, lengthgot, data);
 
-
 			if (strcmp(status, "Done") == 0)
 			{
-				
+
 				lengthrecv = atol(lengthgot);
 				WritetoFile(_fileName, (char*)fileContent.c_str(), lengthrecv);
-				/*ofstream oFile;
 
-				oFile.open("okgood.txt", std::ios::binary | std::ios::out);
-				oFile.write(fileContent.c_str(), fileContent.length());
-				oFile.close();*/
 				hash = CalculateMd5Hash(_fileName);
 
 				if (strcmp(hash.c_str(), data) == 0)
@@ -501,23 +417,16 @@ int main(int argc, char* argv[])
 				{
 					printf("File transferred with errors.\n");
 				}
-
-
 			}
 			else if (strcmp(status, "Processing") == 0)
 			{
-
 				string data2(data);
 				fileContent += data2;
 				this_thread::sleep_for(chrono::milliseconds(100));
-
 			}
-
-
 		}
 
 		// show packets that were acked this frame
-
 #ifdef SHOW_ACKS
 		unsigned int* acks = NULL;
 		int ack_count = 0;
@@ -556,13 +465,13 @@ int main(int argc, char* argv[])
 				sent_bandwidth, acked_bandwidth);
 
 			statsAccumulator -= 0.25f;
-		}
+	}
 
 		net::wait(DeltaTime);
 
-	}
+}
 
 	ShutdownSockets();
 
 	return 0;
-}
+		}

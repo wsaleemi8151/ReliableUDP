@@ -1,3 +1,12 @@
+/*
+* FILE : FileIntegrityManager.h
+* PROJECT : SENG2040-22W-Sec1-Network Application Development - Assignment # 1
+* PROGRAMMER : Gursharan Singh - Waqar Ali Saleemi
+* FIRST VERSION : 2022-01-25
+* DESCRIPTION :
+* Header file for prototypes
+*/
+
 
 #include<string.h>
 #include<stdlib.h>
@@ -15,14 +24,9 @@ using namespace std;
 int AddHeader(char* fileName, char* transferStatus, char* length, char* data);
 int ExtractHeader(char* fileName, char* transferStatus, unsigned char* input, char* length, char* data);
 
-//int AddHeader(char* fileName, char* transferStatus, char* data);
-//int ExtractHeader(char* fileName, char* transferStatus, char* input, char* data);
 string CalculateMd5Hash(string filename);	
-//void ReadFiletoString(string filename, char* contents);
-//long ReadFiletoString(string filename, char* contents);
 long ReadFileLength(string filename);
 void ReadFiletoString(string filename, char* contents, long Length);
-//void ReadFiletoString(string filename, char* contents, long Length);
 
 #pragma once
 class FileIntegrityManager
