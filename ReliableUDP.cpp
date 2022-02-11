@@ -406,8 +406,6 @@ int main(int argc, char* argv[])
 
 				long completefilelen = atol(strLength.c_str());
 
-				
-
 				if (mode == Client)
 				{
 					// ----------------------------------------------
@@ -434,13 +432,6 @@ int main(int argc, char* argv[])
 					printf("\tFile transfer rate: %02f (megabits/sec)\n", transferRate);
 					printf("\n------------------------------------------------------------------\n");
 
-
-					//resting
-					fileName = "";
-					strcpy(status, "");
-					strcpy(data, "");
-					strLength = "";
-					transferredLength = 0;
 
 					/*
 						cout << "Hello I'm waiting...." << endl;
@@ -509,11 +500,6 @@ int main(int argc, char* argv[])
 				{
 					printf("File transferred with errors.\n");
 				}
-				fileContent = "";
-				strcpy(_fileName, "");
-				strcpy(status, "");
-				strcpy(data, "");
-				strcpy(lengthgot, "");
 			}
 			else if (strcmp(status, "Processing") == 0)
 			{
