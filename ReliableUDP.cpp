@@ -330,7 +330,7 @@ int main(int argc, char* argv[])
 				connection.SendPacket(packet, sizeof(packet));
 				sendAccumulator -= 1.0f / sendRate;
 			}
-			else 
+			else
 			{
 				strcpy(status, "Done");
 				strcpy(data, (char*)hash.c_str());
@@ -353,23 +353,23 @@ int main(int argc, char* argv[])
 
 		while (true)
 		{
-		    char data[DataSize];
+			char data[DataSize];
 			string fileContent;
 			char status[25] = "Processing";
 
-		
+
 			unsigned char packet[PacketSize];
 
 			int bytes_read = connection.ReceivePacket(packet, sizeof(packet));
 
-			
+
 			//strcpy(data, (char*)packet);
 			char _fileName[150] = "";
 			strcpy(status, "");
 			strcpy(data, "");
 			ExtractHeader(_fileName, status, (char*)packet, data);
 
-			
+
 			if (strcmp(status, "Done") == 0)
 			{
 				ofstream oFile;
@@ -398,7 +398,7 @@ int main(int argc, char* argv[])
 
 			if (bytes_read == 0)
 			{
-				
+
 				break;
 
 				/*
@@ -474,11 +474,9 @@ int main(int argc, char* argv[])
 
 		net::wait(DeltaTime);
 
-
-		ShutdownSockets();
-
-
 	}
+
+	ShutdownSockets();
 
 	return 0;
 }
