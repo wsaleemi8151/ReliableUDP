@@ -427,7 +427,7 @@ int main(int argc, char* argv[])
 					printf("\t\tFile Transfer completed");
 					printf("\n------------------------------------------------------------------\n\n");
 					printf("\tFile Name: %s\n", fileName.c_str());
-					printf("\tFile size (bytes): %02l\n", completefilelen);
+					printf("\tFile size (bytes): %d\n", completefilelen);
 					printf("\tTime spent (in seconds): %02f\n", timeSpent);
 					printf("\tFile transfer rate: %02f (megabits/sec)\n", transferRate);
 					printf("\n------------------------------------------------------------------\n");
